@@ -1,0 +1,65 @@
+﻿<Window x:Class="PlannerApp.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Login"
+        WindowStartupLocation="CenterScreen" 
+        WindowState="Maximized" 
+        MinWidth="800" 
+        MinHeight="600">
+    
+    <Grid RenderTransformOrigin="0.579,0.497" Margin="0,54,0,-6">
+        <Grid.ColumnDefinitions>
+            <!-- Первая колонка с формой -->
+            <ColumnDefinition Width="69*"/>
+            <ColumnDefinition Width="0*"/>
+            <ColumnDefinition Width="662*"/>
+            <!-- Заполняет доступное пространство -->
+            <!-- Вторая колонка с изображением -->
+            <ColumnDefinition Width="Auto" MinWidth="635"/>
+            <!-- Ширина для изображения -->
+        </Grid.ColumnDefinitions>
+
+        <!-- Левая часть с формой -->
+        <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Left" 
+                    Width="536" Height="479">
+            <TextBlock Text="Login" FontSize="32" FontWeight="Bold" Margin="0,0,0,20" HorizontalAlignment="Center"/>
+            <TextBox Name="UsernameBox" 
+                     Text="Enter Username" 
+                     GotFocus="TextBox_GotFocus" 
+                     LostFocus="TextBox_LostFocus" 
+                     FontSize="16" Height="40" Margin="0,10"/>
+            <Grid Height="40" Margin="0,10">
+                <TextBlock Name="PasswordPlaceholder" 
+                           Text="Password" 
+                           Foreground="Gray"
+                           FontSize="16"
+                           VerticalAlignment="Center"
+                           Margin="5,0,0,0"
+                           IsHitTestVisible="False"
+                           MouseDown="PasswordPlaceholder_MouseDown"/>
+                <PasswordBox Name="PasswordBox" 
+                             GotFocus="PasswordBox_GotFocus" 
+                             LostFocus="PasswordBox_LostFocus" 
+                             PasswordChanged="PasswordBox_PasswordChanged" 
+                             FontSize="16"/>
+            </Grid>
+
+            <Button Content="Login" Click="LoginButton_Click"
+                    Background="#FF68A37E" Foreground="White"
+                    FontSize="16" Height="40" Margin="0,20"/>
+
+            <TextBlock Text="Don't have an account? Sign Up" Foreground="Blue" 
+                       Cursor="Hand" MouseDown="SignUp_MouseDown" 
+                       HorizontalAlignment="Center"/>
+        </StackPanel>
+
+        <!-- Правая часть с изображением -->
+        <Grid Grid.Column="3" Margin="20,20,20,20">
+            <Image Source="/Images/Login.png" 
+                   VerticalAlignment="Top" 
+                   HorizontalAlignment="Center" 
+                   Stretch="UniformToFill" 
+                   Margin="0,54,0,0"/>
+        </Grid>
+    </Grid>
+</Window>
