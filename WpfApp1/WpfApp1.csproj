@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net9.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UseWPF>true</UseWPF>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <None Remove="images\calendar.png" />
+      <Resource Include="images\calendar.png" />
+      <None Remove="images\notification.png" />
+      <Resource Include="images\notification.png" />
+      <None Remove="images\search.png" />
+      <Resource Include="images\search.png" />
+      <None Remove="images\dashboard_g.png" />
+      <Resource Include="images\dashboard_g.png" />
+      <None Remove="images\my task.png" />
+      <Resource Include="images\my task.png" />
+      <None Remove="images\mycategories.png" />
+      <Resource Include="images\mycategories.png" />
+      <None Remove="images\settings.png" />
+      <Resource Include="images\settings.png" />
+      <None Remove="images\statitics.png" />
+      <Resource Include="images\statitics.png" />
+      <None Remove="images\logout.png" />
+      <Resource Include="images\logout.png" />
+      <None Remove="images\repeat.png" />
+      <Resource Include="images\repeat.png" />
+      <None Remove="images\time.png" />
+      <Resource Include="images\time.png" />
+      <None Remove="images\calendar_gre.png" />
+      <Resource Include="images\calendar_gre.png" />
+      <None Remove="images\Vector.png" />
+      <Resource Include="images\Vector.png" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.0" />
+      <PackageReference Include="MySql.Data" Version="9.2.0" />
+      <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0-preview.3.efcore.9.0.0" />
+    </ItemGroup>
+
+</Project>
