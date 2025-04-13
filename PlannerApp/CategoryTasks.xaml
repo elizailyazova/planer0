@@ -1,4 +1,4 @@
-﻿<Window x:Class="PlannerApp.Category"
+﻿<Window x:Class="PlannerApp.CategoryTasks"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:PlannerApp.ViewModels"
@@ -18,6 +18,7 @@
                       BlurRadius="10"
                       Color="#000000" />
     </Window.Resources>
+
 
     <Grid>
         <!-- Верхнее меню -->
@@ -132,21 +133,22 @@
                             </StackPanel>
                         </Button>
 
-                        <Button Background="Transparent" Foreground="White" FontSize="16" Height="59" BorderThickness="0" HorizontalAlignment="Left" Margin="50,0,0,0">
-                            <StackPanel Orientation="Horizontal">
+
+                        <Button  Background="Transparent" Click="OpenCategories" Foreground="White" FontSize="16" Height="59" BorderThickness="0" HorizontalAlignment="Left" Margin="50,0,0,0">
+                            <StackPanel Orientation="Horizontal" >
                                 <Image Source="images/mycategories.png" Width="15" Height="15" Margin="0,0,10,0"/>
                                 <TextBlock Text="Task Categories" VerticalAlignment="Center" Width="113"/>
                             </StackPanel>
                         </Button>
 
-                        <Button  Background="Transparent" Foreground="White" FontSize="16" Height="59" BorderThickness="0" HorizontalAlignment="Left" Margin="50,0,0,0">
+                        <Button Click="Logout" Background="Transparent" Foreground="White" FontSize="16" Height="59" BorderThickness="0" HorizontalAlignment="Left" Margin="50,0,0,0">
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="images/settings.png" Width="15" Height="15" Margin="0,0,10,0"/>
                                 <TextBlock Text="My Profile" VerticalAlignment="Center" Width="116"/>
                             </StackPanel>
                         </Button>
 
-                        <Button Click="Logout" Background="Transparent" Foreground="White" FontSize="16" Height="66" BorderThickness="0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="50,0,0,0">
+                        <Button Background="Transparent" Click="Logout" Foreground="White" FontSize="16" Height="66" BorderThickness="0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="50,0,0,0">
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="images/logout.png" Width="15" Height="15" Margin="0,0,10,0"/>
                                 <TextBlock Text="Logout"/>
@@ -158,58 +160,42 @@
 
             <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="10,0,0,0">
                 <StackPanel Margin="30,30,0,20">
-                    <TextBlock Text="Task Categories" FontSize="26" FontWeight="SemiBold" Margin="5,10,0,20" Foreground="#333"/>
+                    <!-- Заголовок категории -->
+                    <TextBlock Name="CategoryTitle" FontSize="25" FontWeight="SemiBold" Foreground="#2F3E46" 
+                   HorizontalAlignment="Left" VerticalAlignment="Top" Margin="40,10,0,0"/>
 
-                    <ItemsControl ItemsSource="{Binding TaskGroups}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border Background="#F4F4F8" CornerRadius="15" Padding="15" Margin="10" Width="400" 
-                            BorderBrush="#E0E0E0" BorderThickness="1" Effect="{StaticResource CardShadowEffect}">
-                                    <StackPanel>
-                                        <Button Style="{StaticResource NoBackgroundButtonStyle}"
-                                    Command="{Binding OpenCategoryCommand}"
-                                    CommandParameter="{Binding}">
-                                            <Button Content="{Binding Category}" Background="#F4F4F8" Click="CategoryClick" FontWeight="SemiBold" 
-                                                    FontSize="20" Margin="0,0,0,10"  BorderThickness="0"/>
-                                        </Button>
+                    <!-- Список задач в два столбца -->
+                    <Border Background="#FFFFFF" Padding="20" CornerRadius="10">
+                        <ItemsControl Name="TaskList">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Command="{Binding DataContext.OpenTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                        CommandParameter="{Binding}" Background="Transparent" BorderThickness="0">
+                                        <Border Background="White" Padding="20" Margin="10" Width="380" CornerRadius="15">
+                                            <Border.Effect>
+                                                <DropShadowEffect Color="#888888" BlurRadius="10" ShadowDepth="3" Opacity="0.5"/>
+                                            </Border.Effect>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="SemiBold" Foreground="#2F3E46" Margin="0,0,0,8"/>
+                                                <TextBlock Text="{Binding Date, StringFormat='{}{0:dd MMM yyyy}'}" FontSize="14" Foreground="#41AB49"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Border>
 
-                                        <ScrollViewer Height="260" VerticalScrollBarVisibility="Auto">
-                                            <ItemsControl ItemsSource="{Binding Tasks}">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Border Background="#FFFFFF" CornerRadius="10" BorderBrush="#DADADA" BorderThickness="1" Padding="10" Margin="5">
-                                                            <StackPanel>
-                                                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="16" Margin="0,0,0,5"/>
-                                                                <Grid>
-                                                                    <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="*" />
-                                                                        <ColumnDefinition Width="Auto" />
-                                                                    </Grid.ColumnDefinitions>
-                                                                    <TextBlock Text="{Binding Date, StringFormat='{}{0:dd MMM yyyy}'}" Foreground="#41AB49"
-                                                                               FontWeight="Normal" Grid.Column="0"/>
-                                                                    <TextBlock Text="{Binding Time, StringFormat='{}{0:hh\\:mm}'}" Foreground="#41AB49" Margin="10,0,0,0" 
-                                                                               Grid.Column="1" FontWeight="Normal"/>
-                                                                </Grid>
-                                                            </StackPanel>
-                                                        </Border>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-                                        </ScrollViewer>
-
-                                    </StackPanel>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
                 </StackPanel>
             </ScrollViewer>
-
         </Grid>
     </Grid>
 </Window>
+
+
+

@@ -1,0 +1,84 @@
+﻿<Window x:Class="PlannerApp.RepeatSettings"
+
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:PlannerApp.ViewModels"
+        Title="Repeat Settings" Height="350" Width="400">
+
+    <Window.Resources>
+        
+        <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+    </Window.Resources>
+    <Grid>
+        <StackPanel Margin="10">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Every" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                <TextBox Width="40" Text="{Binding Interval, UpdateSourceTrigger=PropertyChanged}" />
+                <ComboBox Width="80" ItemsSource="{Binding FrequencyOptions}" 
+                          SelectedItem="{Binding SelectedFrequency}" 
+                          DisplayMemberPath="."/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" Margin="0, 5, 0, 0" Visibility="{Binding IsWeekSelected, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ToggleButton Content="Sun" IsChecked="{Binding SelectedDays[0]}"/>
+                <ToggleButton Content="Mon" IsChecked="{Binding SelectedDays[1]}"/>
+                <ToggleButton Content="Tue" IsChecked="{Binding SelectedDays[2]}"/>
+                <ToggleButton Content="Wed" IsChecked="{Binding SelectedDays[3]}"/>
+                <ToggleButton Content="Thu" IsChecked="{Binding SelectedDays[4]}"/>
+                <ToggleButton Content="Fri" IsChecked="{Binding SelectedDays[5]}"/>
+                <ToggleButton Content="Sat" IsChecked="{Binding SelectedDays[6]}"/>
+            </StackPanel>
+
+            <StackPanel Visibility="{Binding IsMonthSelected, Converter={StaticResource BoolToVisibilityConverter}}">
+            </StackPanel>
+
+            <WrapPanel Margin="0, 10, 0, 0" Visibility="{Binding IsYearSelected, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ToggleButton Content="Jan" IsChecked="{Binding SelectedMonths[0]}"/>
+                <ToggleButton Content="Feb" IsChecked="{Binding SelectedMonths[1]}"/>
+                <ToggleButton Content="Mar" IsChecked="{Binding SelectedMonths[2]}"/>
+                <ToggleButton Content="Apr" IsChecked="{Binding SelectedMonths[3]}"/>
+                <ToggleButton Content="May" IsChecked="{Binding SelectedMonths[4]}"/>
+                <ToggleButton Content="Jun" IsChecked="{Binding SelectedMonths[5]}"/>
+                <ToggleButton Content="Jul" IsChecked="{Binding SelectedMonths[6]}"/>
+                <ToggleButton Content="Aug" IsChecked="{Binding SelectedMonths[7]}"/>
+                <ToggleButton Content="Sep" IsChecked="{Binding SelectedMonths[8]}"/>
+                <ToggleButton Content="Oct" IsChecked="{Binding SelectedMonths[9]}"/>
+                <ToggleButton Content="Nov" IsChecked="{Binding SelectedMonths[10]}"/>
+                <ToggleButton Content="Dec" IsChecked="{Binding SelectedMonths[11]}"/>
+            </WrapPanel>
+
+            <StackPanel Orientation="Vertical" Margin="0, 10, 0, 0">
+                <TextBlock Text="Duration" FontSize="14" FontWeight="SemiBold"/>
+
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton Content="Before specific date" 
+                                 GroupName="EndRepeat" 
+                                 IsChecked="{Binding EndsOn, Mode=TwoWay}" 
+                                 Command="{Binding UpdateRepeatSettingsCommand}"
+                                 Margin="0, 5, 0, 0"/>
+                    <DatePicker SelectedDate="{Binding EndsOnDate}" 
+                                IsEnabled="{Binding IsEndsOnEnabled}" 
+                                Margin="10, 0, 0, 0"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton Content="Specified number of times" 
+                                 GroupName="EndRepeat" 
+                                 IsChecked="{Binding EndsAfter, Mode=TwoWay}" 
+                                 Command="{Binding UpdateRepeatSettingsCommand}"
+                                 Margin="0, 5, 0, 0"/>
+
+                    <TextBox Text="{Binding EndsAfterOccurrences}" 
+                             IsEnabled="{Binding IsEndsAfterEnabled}" 
+                             Margin="10, 5, 0, 0" Width="30"/>
+                </StackPanel>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                <Button Content="Cancel" Command="{Binding CancelCommand}" Width="80"/>
+                <Button Content="Apply" Command="{Binding ApplyCommand}" Width="80" Margin="10,0,0,0"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

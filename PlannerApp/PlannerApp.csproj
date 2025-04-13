@@ -122,7 +122,19 @@
     <Compile Include="Category.xaml.Designer.cs">
       <DependentUpon>Category.xaml.cs</DependentUpon>
     </Compile>
+    <Compile Include="CategoryTasks.xaml.cs">
+      <DependentUpon>CategoryTasks.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Models\RecurrenceModel.cs" />
     <Compile Include="Models\TaskItem.cs" />
+    <Compile Include="RelayCommand.cs" />
+    <Compile Include="RepeatSettings.xaml.cs">
+      <DependentUpon>RepeatSettings.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Services\TaskService.cs" />
+    <Compile Include="Tasks.xaml.cs">
+      <DependentUpon>Tasks.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserProfileWindow.xaml.cs">
       <DependentUpon>UserProfileWindow.xaml</DependentUpon>
     </Compile>
@@ -136,10 +148,12 @@
       <DependentUpon>Register.xaml</DependentUpon>
       <Generator>MSBuild:Compile</Generator>
     </Compile>
+    <Compile Include="ViewModels\BoolToVisibilityConverter.cs" />
     <Compile Include="ViewModels\CategoryViewModel.cs" />
     <Compile Include="ViewModels\CategoryViewModel.Designer.cs">
       <DependentUpon>CategoryViewModel.cs</DependentUpon>
     </Compile>
+    <Compile Include="ViewModels\InverseBoolToVisibilityConverter.cs" />
     <Compile Include="ViewModels\TakeFirstTwoConverter.cs" />
     <Page Include="AddTask.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -147,6 +161,15 @@
     <Page Include="Category.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Form</SubType>
+    </Page>
+    <Page Include="CategoryTasks.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="RepeatSettings.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Tasks.xaml">
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserProfileWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

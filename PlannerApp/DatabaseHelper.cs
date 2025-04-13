@@ -3,75 +3,170 @@ using System;
 using System.Collections.Generic;
 using PlannerApp.Models;
 
-
 namespace PlannerApp
 {
-    public class DatabaseHelper
+    public class DatabaseHelper : IDisposable
     {
         private const string connectionString = "Server=localhost;Database=planer;User ID=root;Password=tasa2004;";
+        private MySqlConnection _connection;
 
-        public static MySqlConnection GetConnection()
+        public MySqlConnection Connection => _connection;  // Публичный доступ к _connection
+
+
+        
+        public DatabaseHelper()
         {
-            return new MySqlConnection(connectionString);
+            _connection = new MySqlConnection(connectionString);
         }
 
-        public static bool TestConnection()
+        public void Dispose()
         {
-            using (var connection = GetConnection())
+            _connection?.Dispose();
+        }
+
+        // Метод для получения подключения
+        public MySqlConnection GetConnection()
+        {
+            return _connection;  // Возвращаем объект подключения
+        }
+
+        public void OpenConnection()
+        {
+            try
             {
-                try
-                {
-                    connection.Open();
-                    Console.WriteLine("Соединение с базой данных установлено успешно.");
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Ошибка при подключении к базе данных: {ex.Message}");
-                    return false;
-                }
+                _connection.Open();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка при подключении к базе данных: {ex.Message}");
             }
         }
 
-        public static List<TaskItem> GetTasks()
+        public TaskItem GetTaskById(int id)
         {
-            List<TaskItem> tasks = new List<TaskItem>();
+            TaskItem task = null;
 
-            using (var connection = GetConnection())
+            try
             {
-                try
+                _connection.Open();
+                string query = "SELECT id, title, description, date, time, category, repeat_type, status FROM task WHERE id = @id";
+
+                using (var command = new MySqlCommand(query, _connection))
                 {
-                    connection.Open();
+                    command.Parameters.AddWithValue("@id", id);
 
-
-                    string query = "SELECT id, title, date, time, category FROM tasks";
-
-                    using (var command = new MySqlCommand(query, connection))
+                    using (var reader = command.ExecuteReader())
                     {
-                        using (var reader = command.ExecuteReader())
+                        if (reader.Read())
                         {
-                           
-                            while (reader.Read())
+                            task = new TaskItem
                             {
-                                tasks.Add(new TaskItem
-                                {
-                                    Title = reader.GetString("title"),
-                                    Date = reader.GetDateTime("date"),
-                                    Time = TimeSpan.ParseExact(reader.GetString("time"), "hh\\:mm\\:ss", null),
-                                    Category = reader["category"].ToString()
-                                });
-
-                            }
+                                Id = reader.GetInt32("id"),
+                                Title = reader.GetString("title"),
+                                Description = reader.GetString("description"),
+                                Date = reader.GetDateTime("date"),
+                                Time = reader.GetTimeSpan("time"),
+                                Category = reader["category"].ToString(),
+                                RepeatType = reader.GetString("repeat_type"),
+                                Status = reader.GetString("status")
+                            };
                         }
                     }
                 }
-                catch (Exception ex)
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка при получении данных: {ex.Message}");
+            }
+            finally
+            {
+                _connection?.Close();
+            }
+
+            return task;
+        }
+
+
+        public List<TaskItem> GetTasks()
+        {
+            List<TaskItem> tasks = new List<TaskItem>();
+
+            try
+            {
+                _connection.Open();
+                string query = "SELECT id, title, description, date, time, category, repeat_type, status FROM task";
+
+                using (var command = new MySqlCommand(query, _connection))
                 {
-                    Console.WriteLine($"Ошибка при получении данных: {ex.Message}");
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            tasks.Add(new TaskItem
+                            {
+                                Id = reader.GetInt32("id"),
+                                Title = reader.GetString("title"),
+                                Description = reader.GetString("description"),
+                                Date = reader.GetDateTime("date"),
+                                Time = reader.GetTimeSpan("time"),
+                                Category = reader["category"].ToString(),
+                                RepeatType = reader.GetString("repeat_type"),
+                                Status = reader.GetString("status")
+                            });
+                        }
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка при получении данных: {ex.Message}");
+            }
+            finally
+            {
+                _connection?.Close();
             }
 
             return tasks;
         }
+
+        
+
+        public void SaveChanges(TaskItem task)
+        {
+            try
+            {
+                _connection.Open();
+
+                // SQL-запрос для обновления задачи
+                string query = "UPDATE task SET title = @title, description = @description, " +
+                               "date = @date, time = @time, category = @category, repeat_type = @repeat_type, " +
+                               "status = @status WHERE id = @id";
+
+                using (var command = new MySqlCommand(query, _connection))
+                {
+                    // Передаем значения из объекта task в запрос
+                    command.Parameters.AddWithValue("@id", task.Id);
+                    command.Parameters.AddWithValue("@title", task.Title);
+                    command.Parameters.AddWithValue("@description", task.Description);
+                    command.Parameters.AddWithValue("@date", task.Date);
+                    command.Parameters.AddWithValue("@time", task.Time);
+                    command.Parameters.AddWithValue("@category", task.Category);
+                    command.Parameters.AddWithValue("@repeat_type", task.RepeatType);
+                    command.Parameters.AddWithValue("@status", task.Status);
+
+                    // Выполняем запрос
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка при сохранении изменений: {ex.Message}");
+            }
+            finally
+            {
+                _connection?.Close();
+            }
+        }
+
     }
 }

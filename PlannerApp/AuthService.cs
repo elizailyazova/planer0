@@ -11,10 +11,12 @@ public class AuthService
 {
     public static bool RegisterUser(string firstName, string lastName, string username, string email, string password)
     {
-        using (MySqlConnection conn = DatabaseHelper.GetConnection())
+        using (var db = new DatabaseHelper())
         {
             try
             {
+                // Открываем соединение
+                var conn = db.GetConnection();
                 conn.Open();
 
                 // Проверяем, есть ли уже пользователь с таким email или username

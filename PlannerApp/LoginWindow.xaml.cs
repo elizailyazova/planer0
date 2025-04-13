@@ -72,8 +72,8 @@ namespace PlannerApp
                 MessageBox.Show("Login successful!");
 
                 // Создаем окно профиля пользователя и передаем userId
-                UserProfileWindow userProfileWindow = new UserProfileWindow(userId);
-                userProfileWindow.Show();
+                UserProfileWindow UserProfileWindow = new UserProfileWindow(userId);
+                UserProfileWindow.Show();
 
                 // Закрываем окно входа
                 this.Close();
@@ -87,37 +87,41 @@ namespace PlannerApp
         // Проверка учетных данных в MySQL
         private bool AuthenticateUser(string username, string password)
         {
-            using (var conn = DatabaseHelper.GetConnection()) // Подключение к БД
+            using (var dbHelper = new DatabaseHelper())
             {
-                try
+                using (var conn = dbHelper.GetConnection()) // Подключение к БД
                 {
-                    conn.Open();
-                    string query = "SELECT password_hash FROM users WHERE username = @Username";
-                    MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@Username", username);
-
-                    object result = cmd.ExecuteScalar();
-
-                    if (result != null)
+                    try
                     {
-                        string storedHash = result.ToString();
-                        string enteredHash = HashPassword(password);
+                        conn.Open();
+                        string query = "SELECT password_hash FROM users WHERE username = @Username";
+                        MySqlCommand cmd = new MySqlCommand(query, conn);
+                        cmd.Parameters.AddWithValue("@Username", username);
 
-                        return storedHash == enteredHash;
+                        object result = cmd.ExecuteScalar();
+
+                        if (result != null)
+                        {
+                            string storedHash = result.ToString();
+                            string enteredHash = HashPassword(password);
+
+                            return storedHash == enteredHash;
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error: " + ex.Message);
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Error: " + ex.Message);
+                    }
                 }
             }
             return false;
         }
 
+
         // Получение userId пользователя из базы данных
         private int GetUserId(string username)
         {
-            using (var conn = DatabaseHelper.GetConnection())
+            using (var conn = new DatabaseHelper().GetConnection())
             {
                 try
                 {
@@ -139,10 +143,11 @@ namespace PlannerApp
                 catch (Exception ex)
                 {
                     MessageBox.Show("Error fetching user ID: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return -1; // Возвращаем -1, если произошла ошибка
+                    return -1;
                 }
             }
         }
+
 
         // Хеширование пароля (SHA-256)
         private string HashPassword(string password)

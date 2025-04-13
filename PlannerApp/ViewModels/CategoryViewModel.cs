@@ -11,8 +11,11 @@ namespace PlannerApp.ViewModels
 {
     public partial class CategoryViewModel : INotifyPropertyChanged
     {
-        private ObservableCollection<TaskItem> _taskItems;
+        private ObservableCollection<TaskItem> _taskItems = new ObservableCollection<TaskItem>();
+
         public ICommand NavigateToCategoryPage { get; set; }
+        public ICommand OpenTaskCommand { get; set; } // Команда для открытия задачи
+
         public ObservableCollection<TaskItem> TaskItems
         {
             get { return _taskItems; }
@@ -23,14 +26,12 @@ namespace PlannerApp.ViewModels
             }
         }
 
-
-        // Команда для перехода на страницу категории
-        public class RelayCommand : ICommand
+        public class RelayCommand<T> : ICommand
         {
-            private readonly Action<object> _execute;
-            private readonly Func<object, bool> _canExecute;
+            private readonly Action<T> _execute;
+            private readonly Func<T, bool> _canExecute;
 
-            public RelayCommand(Action<object> execute, Func<object, bool> canExecute = null)
+            public RelayCommand(Action<T> execute, Func<T, bool> canExecute = null)
             {
                 _execute = execute ?? throw new ArgumentNullException(nameof(execute));
                 _canExecute = canExecute;
@@ -44,40 +45,55 @@ namespace PlannerApp.ViewModels
 
             public bool CanExecute(object parameter)
             {
-                return _canExecute?.Invoke(parameter) ?? true;
+                return _canExecute?.Invoke((T)parameter) ?? true;
             }
 
             public void Execute(object parameter)
             {
-                _execute(parameter);
+                _execute((T)parameter);
             }
         }
 
+
+        public CategoryViewModel()
+        {
+            // Инициализация команды для открытия задачи
+            OpenTaskCommand = new RelayCommand<TaskItem>(OpenTask);
+        }
+
+        // Обработчик команды для открытия задачи
+        private void OpenTask(TaskItem task)
+        {
+            // Открытие окна Tasks и передача выбранной задачи
+            var tasksWindow = new Tasks(task);
+            tasksWindow.Show(); // Показываем окно с деталями задачи
+        }
 
         // Загрузка задач по категории
         private async void LoadTasksByCategory(string categoryName)
         {
             try
             {
-                var tasks = await Task.Run(() => DatabaseHelper.GetTasks()); // Загрузка задач из базы данных
-                var filteredTasks = tasks.Where(t => t.Category == categoryName).ToList(); // Фильтрация по имени категории
-
-                Application.Current.Dispatcher.Invoke(() =>
+                using (var db = new DatabaseHelper())  // Создаём объект базы
                 {
-                    TaskItems.Clear();
-                    foreach (var task in filteredTasks)
+                    var tasks = await Task.Run(() => db.GetTasks()); // Загружаем задачи
+                    var filteredTasks = tasks.Where(t => t.Category == categoryName).ToList(); // Фильтруем по категории
+
+                    Application.Current.Dispatcher.Invoke(() =>
                     {
-                        TaskItems.Add(task);
-                    }
-                });
+                        TaskItems.Clear();
+                        foreach (var task in filteredTasks)
+                        {
+                            TaskItems.Add(task);
+                        }
+                    });
+                }
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка загрузки задач по категории: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
-       
 
         // Оповещение об изменении свойств
         public event PropertyChangedEventHandler PropertyChanged;

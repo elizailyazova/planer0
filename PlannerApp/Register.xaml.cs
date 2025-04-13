@@ -94,10 +94,12 @@ namespace PlannerApp
         // Обработчик для кнопки регистрации
         private bool RegisterUser(string firstName, string lastName, string username, string email, string passwordHash)
         {
-            using (var conn = DatabaseHelper.GetConnection())
+            using (var db = new DatabaseHelper())
             {
                 try
                 {
+                    // Открываем соединение
+                    var conn = db.GetConnection();
                     conn.Open();
                     string query = "INSERT INTO users (first_name, last_name, username, email, password_hash) " +
                                    "VALUES (@FirstName, @LastName, @Username, @Email, @PasswordHash)";
@@ -184,10 +186,12 @@ namespace PlannerApp
         // Метод для проверки существования пользователя в базе
         private bool IsUserExist(string email, string username)
         {
-            using (var conn = DatabaseHelper.GetConnection())
+            using (var db = new DatabaseHelper())
             {
                 try
                 {
+                    // Открываем соединение
+                    var conn = db.GetConnection();
                     conn.Open();
                     string query = "SELECT COUNT(*) FROM users WHERE email = @Email OR username = @Username";
                     MySqlCommand cmd = new MySqlCommand(query, conn);

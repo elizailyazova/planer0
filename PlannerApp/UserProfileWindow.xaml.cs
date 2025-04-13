@@ -5,6 +5,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using Microsoft.Win32;
 using MySql.Data.MySqlClient;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace PlannerApp
 {
@@ -23,12 +24,14 @@ namespace PlannerApp
         // Загрузка данных пользователя
         private void LoadUserData()
         {
-            using (var conn = DatabaseHelper.GetConnection())
+            using (var db = new DatabaseHelper())
             {
                 try
                 {
+                    // Открываем соединение
+                    var conn = db.GetConnection();
                     conn.Open();
-                    string query = "SELECT first_name, last_name, username, email, contact_number, position, avatar FROM users WHERE id = @UserId";
+                    string query = "SELECT id, first_name, last_name, username, email, contact_number, position, avatar FROM users WHERE id = @UserId";
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@UserId", userId);
 
@@ -36,7 +39,7 @@ namespace PlannerApp
                     {
                         if (reader.Read())
                         {
-
+                           
                             UsernameText.Text = reader["username"].ToString();
                             EmailText.Text = reader["email"].ToString();
 
@@ -71,11 +74,13 @@ namespace PlannerApp
         // Обновление данных пользователя
         private void UpdateInfo_Click(object sender, RoutedEventArgs e)
         {
-            using (var conn = DatabaseHelper.GetConnection())
+            using (var db = new DatabaseHelper())
             {
                 try
                 {
+                    var conn = db.GetConnection();
                     conn.Open();
+                    
                     string query = "UPDATE users SET contact_number = @ContactNumber, position = @Position WHERE id = @UserId";
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@ContactNumber", ContactNumberBox.Text);
@@ -83,7 +88,8 @@ namespace PlannerApp
                     cmd.Parameters.AddWithValue("@UserId", userId);
 
                     int rowsAffected = cmd.ExecuteNonQuery();
-                    MessageBox.Show(rowsAffected > 0 ? "The profile has been updated!" : "No changes.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show(rowsAffected > 0 ? "The profile has been updated!" : "No changes.", "Information",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {
@@ -140,10 +146,12 @@ namespace PlannerApp
         // Обновление аватара в базе данных
         private void UpdateAvatarInDatabase(byte[] imageBytes)
         {
-            using (var conn = DatabaseHelper.GetConnection())
+            using (var db = new DatabaseHelper())
             {
                 try
                 {
+                    // Открываем соединение
+                    var conn = db.GetConnection();
                     conn.Open();
                     string query = "UPDATE users SET avatar = @Avatar WHERE id = @UserId";
                     MySqlCommand cmd = new MySqlCommand(query, conn);
@@ -162,17 +170,33 @@ namespace PlannerApp
 
         private void OpenCategory(object sender, RoutedEventArgs e)
         {
-            // Создаём новую страницу и передаем данные (если нужно)
-            Category categoryPage = new Category(userId);
+            Category categoryWindow = new Category();
+            categoryWindow.Show();
+            this.Close();  
+        }
 
-            // Переход на страницу через MainFrame
-            TasksFrame.Navigate(categoryPage);
+        private void OpenAddTask(object sender, RoutedEventArgs e)
+        {
+            AddTask addtaskWindow = new AddTask();
+            addtaskWindow.Show();
+            this.Close();
+        }
+        private void OpenMain(object sender, RoutedEventArgs e)
+        {
+            MainWindow mainWindow = new MainWindow();
+            mainWindow.Show();
+            this.Close();
         }
 
 
+        private void Logout(object sender, RoutedEventArgs e)
+        {
+            LoginWindow categoryWindow = new LoginWindow();
+            categoryWindow.Show();
+            this.Close();
+        }
 
 
-        // Обработчики меню
         private void Save_Click(object sender, RoutedEventArgs e) => UpdateInfo_Click(sender, e);
         private void Exit_Click(object sender, RoutedEventArgs e) => Close();
         private void ChangePassword_Click(object sender, RoutedEventArgs e)
