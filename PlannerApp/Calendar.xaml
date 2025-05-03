@@ -1,9 +1,9 @@
-﻿<Window x:Class="PlannerApp.MainWindow"
+﻿<Window x:Class="PlannerApp.Calendar"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:PlannerApp.ViewModels"
         WindowStartupLocation="CenterScreen" WindowState="Maximized" 
-        Title="Main" Height="1024" Width="1440" Background="#F5F8FF">
+        Title="Calendar" Height="1024" Width="1440" Background="#F5F8FF">
     
     <Window.DataContext>
         <local:CategoryViewModel/>
@@ -12,12 +12,34 @@
     <Window.Resources>
         <local:TakeFirstTwoConverter x:Key="TakeFirstTwoConverter"/>
         <DropShadowEffect x:Key="CardShadowEffect"
-                  ShadowDepth="5"
-                  Opacity="0.3"
-                  BlurRadius="10"
-                  Color="#000000" />
+                          ShadowDepth="5"
+                          Opacity="0.3"
+                          BlurRadius="10"
+                          Color="#000000" />
+                     
+        <!-- Стиль для кнопок календаря -->
+        <Style x:Key="CalendarDayButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="20"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
-
     <Grid>
         <!-- Верхнее меню -->
         <DockPanel Height="100" Background="#F8F8F8" VerticalAlignment="Top" Margin="0,0,0,10">
@@ -89,7 +111,8 @@
                     </Button.Resources>
                     <Image Source="images/notification.png" Width="15" Height="15"/>
                 </Button>
-                <Button Click="ShowCalendar" Width="40" Height="40" Background="#41AB49" Foreground="White" BorderThickness="0" Margin="5,0"
+
+                <Button Width="40" Height="40" Background="#41AB49" Foreground="White" BorderThickness="0" Margin="5,0"
                         HorizontalAlignment="Right" VerticalAlignment="Center">
                     <Button.Resources>
                         <Style TargetType="Border">
@@ -170,15 +193,122 @@
                     </StackPanel>
                 </Border>
             </Grid>
+            
 
-            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="10,0,0,0">
-                <StackPanel Margin="30,30,0,20">
-                    <!-- Заголовок категории -->
-                    <TextBlock x:Name="ToDoTitle" FontSize="20" FontWeight="SemiBold" Foreground="#2F3E46"
-                   HorizontalAlignment="Left" VerticalAlignment="Top" Margin="40,10,0,0"/>
-
+            <Grid Grid.Column="1" Margin="20,20,20,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+                
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <!-- Блок календаря и задач -->
+        <Border Grid.Row="1" Background="White" CornerRadius="15" Height="800" Width="900" Padding="20" Margin="0,60,0,0">
+            
+            <Border.Effect>
+                <DropShadowEffect Color="Gray" BlurRadius="10" ShadowDepth="3" Opacity="0.3"/>
+            </Border.Effect>
+                <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                
+                <!-- Заголовок месяца и кнопки навигации -->
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBlock x:Name="MonthYearText" Text="May 2025" 
+                               FontSize="24" FontWeight="Bold" Foreground="#2F3E46" 
+                               VerticalAlignment="Center" Margin="15,0,0,0" />
+                    
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,10,10,10">
+                        <Button x:Name="PrevMonthButton" Content="&lt;" Width="30" Height="30" 
+                                Background="#41AB49" Foreground="White" BorderThickness="0" 
+                                Click="PrevMonthButton_Click" Margin="0,0,5,0">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="15" />
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                        <Button x:Name="NextMonthButton" Content="&gt;" Width="30" Height="30" 
+                                Background="#41AB49" Foreground="White" BorderThickness="0" 
+                                Click="NextMonthButton_Click">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="15" />
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+                
+                <!-- Календарная сетка -->
+                <Grid Grid.Row="1" x:Name="CalendarGrid" Margin="0,20,0,20" Height="400">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Дни недели -->
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" Text="SUN" HorizontalAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,10" />
+                        <TextBlock Grid.Column="1" Text="MON" HorizontalAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,10" />
+                        <TextBlock Grid.Column="2" Text="TUE" HorizontalAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,10" />
+                        <TextBlock Grid.Column="3" Text="WED" HorizontalAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,10" />
+                        <TextBlock Grid.Column="4" Text="THU" HorizontalAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,10" />
+                        <TextBlock Grid.Column="5" Text="FRI" HorizontalAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,10" />
+                        <TextBlock Grid.Column="6" Text="SAT" HorizontalAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,10" />
+                    </Grid>
+                    
+                    <!-- Календарные ячейки, будут добавляться динамически в коде -->
+                    <UniformGrid Grid.Row="1" x:Name="DaysGrid" Rows="6" Columns="7" />
+                </Grid>
+                
+                <!-- Список задач на выбранный день -->
+                <Grid Grid.Row="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Заголовок и кнопка добавления -->
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                            <Image Source="/Images/task_icon.png" Width="20" Height="20" Margin="0,0,5,0" 
+                                   Visibility="Collapsed" x:Name="TaskIconImage" />
+                            <TextBlock x:Name="TasksDateText"
+                                       FontSize="16" FontWeight="SemiBold" Margin="0,5" />
+                        </StackPanel>
+                        
+                        <Button Grid.Column="2" Content="+ Add task" BorderThickness="0" Margin="0,0,0,40" 
+                                Background="Transparent" Foreground="#41AB49" 
+                                Click="AddTask_Click" FontWeight="SemiBold" />
+                    </Grid>
+                    
                     <!-- Список задач -->
-                    <Border Background="#FFFFFF" Padding="20" CornerRadius="10">
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"  HorizontalScrollBarVisibility="Disabled" Margin="0,0,0,0">
                         <ItemsControl Name="TaskList" ItemsSource="{Binding Tasks}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -187,17 +317,21 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Button Command="{Binding DataContext.OpenTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                        CommandParameter="{Binding}" Background="Transparent" BorderThickness="0">
-                                        <Border Background="White" Padding="20" Margin="10" Width="380" CornerRadius="15">
+                                    <Button Width="300" Height="160" Margin="5"
+                                            Command="{Binding DataContext.OpenTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            CommandParameter="{Binding}" Background="Transparent" BorderThickness="0">
+                                        <Border Background="#F5F8FF" Padding="20" Margin="10" Width="380" CornerRadius="15">
                                             <Border.Effect>
-                                                <DropShadowEffect Color="#888888" BlurRadius="10" ShadowDepth="3" Opacity="0.5"/>
+                                                <DropShadowEffect Color="#888888" BlurRadius="10" ShadowDepth="3" Opacity="1"/>
                                             </Border.Effect>
                                             <StackPanel>
-                                                <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="SemiBold"
+                                                <TextBlock Text="{Binding Title}" FontSize="12" FontWeight="SemiBold"
                                                            Foreground="#2F3E46" Margin="0,0,0,8"/>
-                                                <TextBlock Text="{Binding Date, StringFormat='{}{0:dd MMM yyyy}'}" FontSize="14" Foreground="#41AB49"/>
-                                                <TextBlock Text="{Binding Status}" FontSize="14" FontWeight="Bold" Margin="0,5,0,0">
+                                                <TextBlock Text="{Binding Date, StringFormat='{}{0:dd MMM yyyy}'}" FontSize="12" Foreground="#41AB49"/>
+                                                <TextBlock Text="{Binding Category}" FontSize="12" FontWeight="SemiBold"
+                                                           Foreground="#41AB49" Margin="0,5,0,8"/>
+
+                                                <TextBlock Text="{Binding Status}" FontSize="12" FontWeight="Bold" Margin="0,5,0,0">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
                                                             <Setter Property="Foreground" Value="Gray"/>
@@ -221,12 +355,21 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                    </Border>
-
-
-                </StackPanel>
-            </ScrollViewer>
-            
-        </Grid>
+                </ScrollViewer>
+            </Grid>
+                
+            </Grid>
+        
+        </Border>
+                </ScrollViewer>
+        
     </Grid>
+            
+
+</Grid>
+        
+</Grid>
+    
+    
+    
 </Window>

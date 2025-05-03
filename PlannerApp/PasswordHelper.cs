@@ -1,22 +1,25 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-public static class PasswordHelper
+namespace PlannerApp
 {
-    // Хеширование пароля с использованием SHA256
-    public static string HashPassword(string password)
+    public static class PasswordHelper
     {
-        using (SHA256 sha256Hash = SHA256.Create())
+        // Хеширование пароля с использованием SHA256
+        public static string HashPassword(string password)
         {
-            byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(password));
-            StringBuilder builder = new StringBuilder();
-
-            foreach (byte byteValue in bytes)
+            using (SHA256 sha256Hash = SHA256.Create())
             {
-                builder.Append(byteValue.ToString("x2"));
-            }
+                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(password));
+                StringBuilder builder = new StringBuilder();
 
-            return builder.ToString();
+                foreach (byte byteValue in bytes)
+                {
+                    builder.Append(byteValue.ToString("x2"));
+                }
+
+                return builder.ToString();
+            }
         }
     }
 }

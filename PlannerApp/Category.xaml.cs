@@ -8,6 +8,7 @@ using System.Windows.Media.Imaging;
 using MySql.Data.MySqlClient;
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Controls;
 
 namespace PlannerApp
@@ -15,7 +16,7 @@ namespace PlannerApp
     public partial class Category : Window
     {
         
-        private string connectionString = "Server=localhost;Database=planer;Uid=root;Pwd=tasa2004;";
+        private string connectionString = "Server=localhost;Database=planer;Uid=root;Pwd=1234;";
         public ObservableCollection<TaskCategory> TaskGroups { get; set; }
         public ObservableCollection<TaskItem> Tasks { get; set; }
 
@@ -82,7 +83,6 @@ namespace PlannerApp
                 bitmap.EndInit();
 
 
-                AvatarBrush.ImageSource = bitmap;
             }
         }
 
@@ -212,11 +212,76 @@ namespace PlannerApp
             }
             return tasks;
         }
+        
+                private void SearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string searchText = SearchTextBox.Text;
+
+                using (var db = new DatabaseHelper())
+                {
+                    var conn = db.GetConnection();
+                    conn.Open();
+                    
+                    string query = @"SELECT * FROM task
+                                   WHERE title LIKE @searchText 
+                                      OR description LIKE @searchText";
+                    
+                    var results = new List<TaskItem>();
+                    using (var cmd = new MySqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@searchText", $"%{searchText}%");
+                        
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (!reader.HasRows)
+                            {
+                                MessageBox.Show("Ничего не найдено");
+                                return;
+                            }
+
+                            while (reader.Read())
+                            {
+                                results.Add(new TaskItem
+                                {
+                                    Id = reader.GetInt32("id"),
+                                    Title = reader.GetString("title"),
+                                    Status = reader.GetString("status"),
+                                    Date = reader.GetDateTime("date"),
+                                    Category = reader.GetString("category")
+                                });
+                            }
+                        }
+                    }
+
+                    if (results == null || !results.Any())
+                    {
+                        MessageBox.Show("Нет результатов");
+                        return;
+                    }
+
+                    var searchWindow = new Search(results);
+                    searchWindow.Show();
+                    this.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка поиска: {ex.Message}");
+            }
+        }
 
         private void OpenAddTask(object sender, RoutedEventArgs e)
         {
             AddTask addtaskWindow = new AddTask();
             addtaskWindow.Show();
+            this.Close();
+        }
+        private void ShowCalendar(object sender, RoutedEventArgs e)
+        {
+            Calendar calendarWindow = new Calendar();
+            calendarWindow.Show();
             this.Close();
         }
 
@@ -228,7 +293,6 @@ namespace PlannerApp
             this.Close();
         }
     }
-
 
     public class TaskCategory
         {

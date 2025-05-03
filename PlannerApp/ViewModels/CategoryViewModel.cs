@@ -57,6 +57,7 @@ namespace PlannerApp.ViewModels
 
         public CategoryViewModel()
         {
+            NavigateToCategoryPage = new RelayCommand<string>(LoadTasksByCategory);
             // Инициализация команды для открытия задачи
             OpenTaskCommand = new RelayCommand<TaskItem>(OpenTask);
         }
@@ -68,7 +69,8 @@ namespace PlannerApp.ViewModels
             var tasksWindow = new Tasks(task);
             tasksWindow.Show(); // Показываем окно с деталями задачи
         }
-
+        
+        
         // Загрузка задач по категории
         private async void LoadTasksByCategory(string categoryName)
         {

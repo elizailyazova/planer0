@@ -7,7 +7,7 @@ namespace PlannerApp
 {
     public class DatabaseHelper : IDisposable
     {
-        private const string connectionString = "Server=localhost;Database=planer;User ID=root;Password=tasa2004;";
+        private const string connectionString = "Server=localhost;Database=planer;User ID=root;Password=1234;";
         private MySqlConnection _connection;
 
         public MySqlConnection Connection => _connection;  // Публичный доступ к _connection
@@ -167,6 +167,7 @@ namespace PlannerApp
                 _connection?.Close();
             }
         }
+        
 
     }
 }

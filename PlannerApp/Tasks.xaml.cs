@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Windows;
 using System.Collections.Generic;
-
+using System.Linq;
 using System.Windows.Input;
 using MySql.Data.MySqlClient;
 using PlannerApp.Models;
@@ -109,16 +109,17 @@ namespace PlannerApp
         private void EnableEditing()
         {
             IsReadOnly = false;
-            // Создаем копию задачи для возможности отмены изменений
-            _originalTask = new TaskItem
+            _originalTask = Task.Clone(); 
+        }
+        
+        private void CancelEditing()
+        {
+            if (_originalTask != null)
             {
-                Title = Task.Title,
-                Description = Task.Description,
-                Date = Task.Date,
-                Time = Task.Time,
-                Category = Task.Category,
-                Status = Task.Status
-            };
+                Task = _originalTask;
+                OnPropertyChanged(nameof(Task)); 
+                IsReadOnly = true;
+            }
         }
 
         private void SaveChanges()
@@ -129,33 +130,29 @@ namespace PlannerApp
                 return;
             }
 
-            DialogResult = true;
-            Close();
+            try
+            {
+                Task.Save();
+                this.DialogResult = true; // Устанавливаем ДО закрытия
+            }
+            catch 
+            { 
+                this.DialogResult = false; // Отмена при ошибке
+            }
+            finally
+            {
+                Close(); // Закрываем окно
+            }
         }
-
         private void DeleteTask()
         {
             if (MessageBox.Show("Удалить задачу?", "Подтверждение", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 try
                 {
-                    if (Task.Id > 0)
-                    {
-                        using (var db = new DatabaseHelper())
-                        {
-                            string query = "DELETE FROM task WHERE id = @id";
-
-                            using (var command = new MySqlCommand(query, db.Connection))
-                            {
-                                command.Parameters.AddWithValue("@id", Task.Id);
-                                db.Connection.Open();
-                                command.ExecuteNonQuery();
-                            }
-                        }
-
-                        DialogResult = true;
-                        Close();
-                    }
+                    Task.Delete(); // << вызов удаления из модели
+                    DialogResult = true;
+                    Close();
                 }
                 catch (Exception ex)
                 {
@@ -223,9 +220,73 @@ namespace PlannerApp
                 this.Close();
             }
         }
+        
+                private void SearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string searchText = SearchTextBox.Text;
 
+                using (var db = new DatabaseHelper())
+                {
+                    var conn = db.GetConnection();
+                    conn.Open();
+                    
+                    string query = @"SELECT * FROM task
+                                   WHERE title LIKE @searchText 
+                                      OR description LIKE @searchText";
+                    
+                    var results = new List<TaskItem>();
+                    using (var cmd = new MySqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@searchText", $"%{searchText}%");
+                        
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (!reader.HasRows)
+                            {
+                                MessageBox.Show("Ничего не найдено");
+                                return;
+                            }
 
+                            while (reader.Read())
+                            {
+                                results.Add(new TaskItem
+                                {
+                                    Id = reader.GetInt32("id"),
+                                    Title = reader.GetString("title"),
+                                    Status = reader.GetString("status"),
+                                    Date = reader.GetDateTime("date"),
+                                    Category = reader.GetString("category")
+                                });
+                            }
+                        }
+                    }
 
+                    if (results == null || !results.Any())
+                    {
+                        MessageBox.Show("Нет результатов");
+                        return;
+                    }
+
+                    var searchWindow = new Search(results);
+                    searchWindow.Show();
+                    this.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка поиска: {ex.Message}");
+            }
+        }
+
+        
+        private void ShowCalendar(object sender, RoutedEventArgs e)
+        {
+            Calendar calendarWindow = new Calendar();
+            calendarWindow.Show();
+            this.Close();
+        }
 
         private void OpenAddTask(object sender, RoutedEventArgs e)
         {

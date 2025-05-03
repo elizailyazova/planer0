@@ -4,7 +4,7 @@
         xmlns:local="clr-namespace:PlannerApp.ViewModels"
         Title="Category" 
         WindowStartupLocation="CenterScreen" WindowState="Maximized"
-        Height="768" Width="1366">
+        Height="1024" Width="1440" Background="#F5F8FF">
 
     <Window.DataContext>
         <local:CategoryViewModel/>
@@ -28,20 +28,30 @@
             </DockPanel.Effect>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="90,30,0,0">
                 <TextBlock Text="Task" Foreground="#41AB49" FontSize="32" FontWeight="SemiBold"/>
-                <TextBlock Text="Track" Foreground="Black" FontSize="32" FontWeight="SemiBold" Margin="5,0,0,0" Width="82"/>
+                <TextBlock Text="Track" Foreground="Black" FontSize="32" FontWeight="SemiBold" Margin="5,0,0,0"/>
             </StackPanel>
             <Grid Width="695" Height="40" Margin="166,0" HorizontalAlignment="Center">
-                <TextBox Width="695" Height="40" Background="#F5F8FF" Padding="10" VerticalContentAlignment="Center">
+                <TextBox x:Name="SearchTextBox" 
+                         Width="650" 
+                         Height="40"
+                         Background="#F5F8FF"
+                         Margin="0,0,45,0"
+                         Padding="10"
+                         VerticalContentAlignment="Center"
+                         Text="{Binding SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                     <TextBox.Style>
                         <Style TargetType="TextBox">
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="TextBox">
                                         <Border Background="{TemplateBinding Background}"
-                                CornerRadius="8"
-                                BorderThickness="0"  
-                                Padding="{TemplateBinding Padding}">
-                                            <ScrollViewer x:Name="PART_ContentHost"/>
+                                                CornerRadius="8"
+                                                BorderThickness="1"
+                                                BorderBrush="#A1A3AB"
+                                                Focusable="True">
+                                            <ScrollViewer x:Name="PART_ContentHost"
+                                                        VerticalAlignment="Center"
+                                                        Padding="{TemplateBinding Padding}"/>
                                         </Border>
                                     </ControlTemplate>
                                 </Setter.Value>
@@ -52,11 +62,16 @@
                         <DropShadowEffect Color="Gray" BlurRadius="8" ShadowDepth="2" Opacity="0.3"/>
                     </TextBox.Effect>
                 </TextBox>
-                <TextBlock Text="Search your task here..." VerticalAlignment="Center" HorizontalAlignment="Left" Padding="15,0,0,0" Foreground="Gray" IsHitTestVisible="False"
-           Visibility="{Binding Text.Length, ElementName=textBox}"/>
 
-                <Button Width="40" Height="40" Background="#41AB49" Foreground="White" BorderThickness="0"
-        HorizontalAlignment="Right" VerticalAlignment="Center">
+                <!-- Кнопка поиска -->
+                <Button x:Name="SearchButton" 
+                        Width="40" 
+                        Height="40" 
+                        Background="#41AB49" 
+                        Foreground="White" 
+                        BorderThickness="0"
+                        HorizontalAlignment="Right"
+                        Click="SearchButton_Click">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="8"/>
@@ -64,12 +79,11 @@
                     </Button.Resources>
                     <Image Source="/images/search.png" Width="15" Height="15"/>
                 </Button>
-
-            </Grid>
-
+            </Grid>            
+            
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,90,0">
                 <Button Width="40" Height="40" Background="#41AB49" Foreground="White" BorderThickness="0"
-        HorizontalAlignment="Right" VerticalAlignment="Center">
+                        HorizontalAlignment="Right" VerticalAlignment="Center">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="8"/>
@@ -78,41 +92,42 @@
                     <Image Source="images/notification.png" Width="15" Height="15"/>
                 </Button>
 
-                <StackPanel Orientation="Vertical" HorizontalAlignment="Right" Margin="10,30">
-                    <TextBlock Text="{Binding CurrentDay}" Foreground="Black" FontSize="15" HorizontalAlignment="Center"/>
-                    <TextBlock Text="{Binding CurrentDate}" Foreground="#3ABEFF" FontSize="14" HorizontalAlignment="Center"/>
-                </StackPanel>
+                <Button Click="ShowCalendar" Width="40" Height="40" Background="#41AB49" Foreground="White" BorderThickness="0" Margin="5,0"
+                        HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="8"/>
+                        </Style>
+                    </Button.Resources>
+                    <Image Source="images/calendar.png" Width="15" Height="15"/>
+                </Button>
+  
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Right" Margin="10,30">
+            <TextBlock Text="{Binding CurrentDay}" Foreground="Black" FontSize="15" HorizontalAlignment="Center"/>
+            <TextBlock Text="{Binding CurrentDate}" Foreground="#3ABEFF" FontSize="14" HorizontalAlignment="Center"/>
+        </StackPanel>
+    </StackPanel>
+</DockPanel>
 
-            </StackPanel>
-        </DockPanel>
-
-        <Grid Margin="0,105,0,0">
+        <Grid Margin="0,80,0,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="305"/>
-                <ColumnDefinition Width="970"/>
+                <ColumnDefinition Width="365"/>  
+                <ColumnDefinition Width="1050"/>   
             </Grid.ColumnDefinitions>
 
             <!-- Боковое меню -->
 
-            <Grid Height="550"  VerticalAlignment="Top" Margin="0,0,0,0">
+            <Grid Height="640"  VerticalAlignment="Bottom">
                 <Border Background="#408057" CornerRadius="8"
-        BorderBrush="#A1A3AB" BorderThickness="1" Margin="0,0,0,0" Height="660" VerticalAlignment="Top">
-
-                    <StackPanel Margin="10">
-                        <Ellipse Width="70" Height="70"  Margin="0,10,0,10">
-                            <Ellipse.Fill>
-                                <ImageBrush x:Name="AvatarBrush" Stretch="UniformToFill"/>
-                            </Ellipse.Fill>
-                        </Ellipse>
-
-                        <StackPanel VerticalAlignment="Bottom">
-                            <TextBlock x:Name="UsernameText" Text="Asel" Foreground="White" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
-                            <TextBlock x:Name="EmailText" Text="asel@gmail.com" Foreground="White" FontSize="12" HorizontalAlignment="Center"/>
+                        BorderBrush="#A1A3AB" BorderThickness="1">
+                    
+                    <StackPanel Margin="20">
+                            <StackPanel VerticalAlignment="Bottom" Margin="0,40,0,0">
+                                <TextBlock Name="UsernameText" Text="Asel" Foreground="White" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" />
+                                <TextBlock Name="EmailText" Text="asel@gmail.com" Foreground="White" FontSize="12" HorizontalAlignment="Center"/>
                         </StackPanel>
 
-
-
-                        <Button Background="Transparent" Foreground="White" FontSize="16" Height="59" BorderThickness="0" HorizontalAlignment="Left" Margin="50,10,0,0">
+                        <Button Background="Transparent" Foreground="White" FontSize="16" Height="59" BorderThickness="0" HorizontalAlignment="Left" Margin="50,30,0,0">
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="/Images/dashboard.png" Width="15" Height="15" Margin="0,0,10,0"/>
                                 <TextBlock Text="Dashboard" VerticalAlignment="Center" Width="118"/>
@@ -133,22 +148,23 @@
                             </StackPanel>
                         </Button>
 
-
-                        <Button  Background="Transparent" Click="OpenCategories" Foreground="White" FontSize="16" Height="59" BorderThickness="0" HorizontalAlignment="Left" Margin="50,0,0,0">
-                            <StackPanel Orientation="Horizontal" >
+                        <Button Background="Transparent" Foreground="White" FontSize="16" Height="59" BorderThickness="0" HorizontalAlignment="Left" Margin="50,0,0,0"
+                            Click="OpenCategories">
+                            <StackPanel Orientation="Horizontal">
                                 <Image Source="images/mycategories.png" Width="15" Height="15" Margin="0,0,10,0"/>
                                 <TextBlock Text="Task Categories" VerticalAlignment="Center" Width="113"/>
                             </StackPanel>
                         </Button>
 
-                        <Button Click="Logout" Background="Transparent" Foreground="White" FontSize="16" Height="59" BorderThickness="0" HorizontalAlignment="Left" Margin="50,0,0,0">
+
+                        <Button Background="Transparent" Foreground="White" FontSize="16" Height="59" BorderThickness="0" HorizontalAlignment="Left" Margin="50,0,0,0">
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="images/settings.png" Width="15" Height="15" Margin="0,0,10,0"/>
                                 <TextBlock Text="My Profile" VerticalAlignment="Center" Width="116"/>
                             </StackPanel>
                         </Button>
 
-                        <Button Background="Transparent" Click="Logout" Foreground="White" FontSize="16" Height="66" BorderThickness="0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="50,0,0,0">
+                        <Button Click="Logout" Background="Transparent" Foreground="White" FontSize="16" Height="66" BorderThickness="0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="50,60,0,0">
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="images/logout.png" Width="15" Height="15" Margin="0,0,10,0"/>
                                 <TextBlock Text="Logout"/>

@@ -3,16 +3,15 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:PlannerApp.ViewModels"
         WindowStartupLocation="CenterScreen" WindowState="Maximized" 
-        Title="Tasks" Height="768" Width="1366">
+        Title="Tasks" Height="1024" Width="1440" Background="#F5F8FF">
+    
 
     <Window.Resources>
-        <local:TakeFirstTwoConverter x:Key="TakeFirstTwoConverter"/>
         <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
     </Window.Resources>
 
     <Grid>
-
         <!-- Верхнее меню -->
         <DockPanel Height="100" Background="#F8F8F8" VerticalAlignment="Top" Margin="0,0,0,10">
             <DockPanel.Effect>
@@ -20,20 +19,30 @@
             </DockPanel.Effect>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="90,30,0,0">
                 <TextBlock Text="Task" Foreground="#41AB49" FontSize="32" FontWeight="SemiBold"/>
-                <TextBlock Text="Track" Foreground="Black" FontSize="32" FontWeight="SemiBold" Margin="5,0,0,0" Width="82"/>
+                <TextBlock Text="Track" Foreground="Black" FontSize="32" FontWeight="SemiBold" Margin="5,0,0,0"/>
             </StackPanel>
             <Grid Width="695" Height="40" Margin="166,0" HorizontalAlignment="Center">
-                <TextBox Width="695" Height="40" Background="#F5F8FF" Padding="10" VerticalContentAlignment="Center">
+                <TextBox x:Name="SearchTextBox" 
+                         Width="650" 
+                         Height="40"
+                         Background="#F5F8FF"
+                         Margin="0,0,45,0"
+                         Padding="10"
+                         VerticalContentAlignment="Center"
+                         Text="{Binding SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                     <TextBox.Style>
                         <Style TargetType="TextBox">
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="TextBox">
                                         <Border Background="{TemplateBinding Background}"
-                                        CornerRadius="8"
-                                        BorderThickness="0"  
-                                        Padding="{TemplateBinding Padding}">
-                                            <ScrollViewer x:Name="PART_ContentHost"/>
+                                                CornerRadius="8"
+                                                BorderThickness="1"
+                                                BorderBrush="#A1A3AB"
+                                                Focusable="True">
+                                            <ScrollViewer x:Name="PART_ContentHost"
+                                                        VerticalAlignment="Center"
+                                                        Padding="{TemplateBinding Padding}"/>
                                         </Border>
                                     </ControlTemplate>
                                 </Setter.Value>
@@ -44,11 +53,16 @@
                         <DropShadowEffect Color="Gray" BlurRadius="8" ShadowDepth="2" Opacity="0.3"/>
                     </TextBox.Effect>
                 </TextBox>
-                <TextBlock Text="Search your task here..." VerticalAlignment="Center" HorizontalAlignment="Left" Padding="15,0,0,0" Foreground="Gray" IsHitTestVisible="False"
-                   Visibility="{Binding Text.Length, ElementName=textBox}"/>
 
-                <Button Width="40" Height="40" Background="#41AB49" Foreground="White" BorderThickness="0"
-                HorizontalAlignment="Right" VerticalAlignment="Center">
+                <!-- Кнопка поиска -->
+                <Button x:Name="SearchButton" 
+                        Width="40" 
+                        Height="40" 
+                        Background="#41AB49" 
+                        Foreground="White" 
+                        BorderThickness="0"
+                        HorizontalAlignment="Right"
+                        Click="SearchButton_Click">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="8"/>
@@ -56,12 +70,11 @@
                     </Button.Resources>
                     <Image Source="/images/search.png" Width="15" Height="15"/>
                 </Button>
-
-            </Grid>
-
+            </Grid>            
+            
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,90,0">
                 <Button Width="40" Height="40" Background="#41AB49" Foreground="White" BorderThickness="0"
-                HorizontalAlignment="Right" VerticalAlignment="Center">
+                        HorizontalAlignment="Right" VerticalAlignment="Center">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="8"/>
@@ -70,41 +83,42 @@
                     <Image Source="images/notification.png" Width="15" Height="15"/>
                 </Button>
 
-                <StackPanel Orientation="Vertical" HorizontalAlignment="Right" Margin="10,30">
-                    <TextBlock Text="{Binding CurrentDay}" Foreground="Black" FontSize="15" HorizontalAlignment="Center"/>
-                    <TextBlock Text="{Binding CurrentDate}" Foreground="#3ABEFF" FontSize="14" HorizontalAlignment="Center"/>
-                </StackPanel>
+                <Button Click="ShowCalendar" Width="40" Height="40" Background="#41AB49" Foreground="White" BorderThickness="0" Margin="5,0"
+                        HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="8"/>
+                        </Style>
+                    </Button.Resources>
+                    <Image Source="images/calendar.png" Width="15" Height="15"/>
+                </Button>
+  
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Right" Margin="10,30">
+            <TextBlock Text="{Binding CurrentDay}" Foreground="Black" FontSize="15" HorizontalAlignment="Center"/>
+            <TextBlock Text="{Binding CurrentDate}" Foreground="#3ABEFF" FontSize="14" HorizontalAlignment="Center"/>
+        </StackPanel>
+    </StackPanel>
+</DockPanel>
 
-            </StackPanel>
-        </DockPanel>
-
-        <Grid Margin="0,105,0,0">
+        <Grid Margin="0,80,0,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="305"/>
-                <ColumnDefinition Width="970"/>
+                <ColumnDefinition Width="365"/>  
+                <ColumnDefinition Width="1050"/>   
             </Grid.ColumnDefinitions>
 
             <!-- Боковое меню -->
 
-            <Grid Height="550"  VerticalAlignment="Top" Margin="0,0,0,0">
+            <Grid Height="640"  VerticalAlignment="Bottom">
                 <Border Background="#408057" CornerRadius="8"
-    BorderBrush="#A1A3AB" BorderThickness="1" Margin="0,0,0,0" Height="660" VerticalAlignment="Top">
-
-                    <StackPanel Margin="10">
-                        <Ellipse Width="70" Height="70"  Margin="0,10,0,10">
-                            <Ellipse.Fill>
-                                <ImageBrush x:Name="AvatarBrush" Stretch="UniformToFill"/>
-                            </Ellipse.Fill>
-                        </Ellipse>
-
-                        <StackPanel VerticalAlignment="Bottom">
-                            <TextBlock Name="UsernameText" Text="Asel" Foreground="White" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
-                            <TextBlock Name="EmailText" Text="asel@gmail.com" Foreground="White" FontSize="12" HorizontalAlignment="Center"/>
+                        BorderBrush="#A1A3AB" BorderThickness="1">
+                    
+                    <StackPanel Margin="20">
+                            <StackPanel VerticalAlignment="Bottom" Margin="0,40,0,0">
+                                <TextBlock Name="UsernameText" Text="Asel" Foreground="White" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" />
+                                <TextBlock Name="EmailText" Text="asel@gmail.com" Foreground="White" FontSize="12" HorizontalAlignment="Center"/>
                         </StackPanel>
 
-
-
-                        <Button Background="Transparent" Foreground="White" FontSize="16" Height="59" BorderThickness="0" HorizontalAlignment="Left" Margin="50,10,0,0">
+                        <Button Background="Transparent" Foreground="White" FontSize="16" Height="59" BorderThickness="0" HorizontalAlignment="Left" Margin="50,30,0,0">
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="/Images/dashboard.png" Width="15" Height="15" Margin="0,0,10,0"/>
                                 <TextBlock Text="Dashboard" VerticalAlignment="Center" Width="118"/>
@@ -126,7 +140,7 @@
                         </Button>
 
                         <Button Background="Transparent" Foreground="White" FontSize="16" Height="59" BorderThickness="0" HorizontalAlignment="Left" Margin="50,0,0,0"
-                Click="OpenCategory">
+                            Click="OpenCategory">
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="images/mycategories.png" Width="15" Height="15" Margin="0,0,10,0"/>
                                 <TextBlock Text="Task Categories" VerticalAlignment="Center" Width="113"/>
@@ -141,7 +155,7 @@
                             </StackPanel>
                         </Button>
 
-                        <Button Click="Logout" Background="Transparent" Foreground="White" FontSize="16" Height="66" BorderThickness="0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="50,0,0,0">
+                        <Button Click="Logout" Background="Transparent" Foreground="White" FontSize="16" Height="66" BorderThickness="0"  VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="50,60,0,0">
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="images/logout.png" Width="15" Height="15" Margin="0,0,10,0"/>
                                 <TextBlock Text="Logout"/>
@@ -151,41 +165,36 @@
                 </Border>
             </Grid>
             <!-- Основная область -->
-            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="10,0,0,0">
-                <Grid Grid.Column="1" VerticalAlignment="Top" Margin="20, 10, 20, 20">
-                    <Border Background="#F5F8FF" CornerRadius="16" Padding="20" Margin="40,10,40,10"
+            <Grid Grid.Column="1" VerticalAlignment="Top" Margin="20, 10, 20, 20">
+                <Border Background="#F5F8FF" CornerRadius="16" Padding="20" Margin="40"
                         BorderBrush="#A1A3AB" BorderThickness="1">
-                        <Border.Effect>
-                            <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="5" Opacity="0.3"/>
-                        </Border.Effect>
+                    <Border.Effect>
+                        <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="5" Opacity="0.3"/>
+                    </Border.Effect>
 
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-                            <Grid Grid.Row="0" Margin="0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <Button  Content="Go Back" Foreground="Black" FontSize="14" FontWeight="SemiBold"
-        Background="{x:Null}" BorderThickness="0"
-        HorizontalAlignment="Right" Margin="10" Cursor="Hand"/>
-
-
-
-                            </Grid>
-                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="10,0,0,18" Grid.RowSpan="3">
-                                <Border Grid.Row="1" Height="459" Background="Transparent" Padding="10" Margin="5"
-                                BorderBrush="#A1A3AB" BorderThickness="0" Width="783">
-                                    <StackPanel Margin="0,0,0,15">
-                                        <StackPanel Orientation="Horizontal" Margin="0, 0, 0, 0">
-                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
-
-                                                <TextBlock Name="titleTextbox" 
+                        <Grid Grid.Row="0" Margin="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Go Back" Foreground="Black" FontSize="14" FontWeight="SemiBold"
+                                       TextDecorations="Underline" HorizontalAlignment="Right" Margin="10" Cursor="Hand"/>
+                        </Grid>
+                        <Border Grid.Row="1" Height="460" Background="Transparent" Padding="10" Margin="5"
+                                BorderBrush="#A1A3AB" BorderThickness="0"
+                                HorizontalAlignment="Stretch">
+                                <StackPanel Margin="0">
+                                <StackPanel Orientation="Horizontal" Margin="0, 0, 0, 0">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                        <Image Source="images/Vector.png" Width="20" Height="20" HorizontalAlignment="Left"/>
+                                        <TextBlock Name="titleTextbox" 
                                                    FontSize="24" 
                                                    FontWeight="SemiBold" 
                                                    VerticalAlignment="Center"  
@@ -193,8 +202,8 @@
                                                    Margin="20, 0, 0, 0" 
                                                    Padding="5"
                                                    Text="{Binding Task.Title}"
-                                                   Visibility="{Binding IsReadOnly, Converter={StaticResource TakeFirstTwoConverter}}"/>
-                                                <TextBox Text="{Binding Task.Title, UpdateSourceTrigger=PropertyChanged}"
+                                                   Visibility="{Binding IsReadOnly, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                        <TextBox Text="{Binding Task.Title, UpdateSourceTrigger=PropertyChanged}"
                                                  FontSize="24"
                                                  FontWeight="SemiBold"
                                                  VerticalAlignment="Center"
@@ -202,37 +211,38 @@
                                                  Margin="20, 0, 0, 0"
                                                  Padding="5"
                                                  Height="50"
-                                                 Width="346"
+                                                 Width="200"
+                                                 HorizontalAlignment="Stretch"
                                                  Visibility="{Binding IsReadOnly, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                                    <TextBox.Style>
-                                                        <Style TargetType="TextBox">
-                                                            <Setter Property="Template">
-                                                                <Setter.Value>
-                                                                    <ControlTemplate TargetType="TextBox">
-                                                                        <Border Background="Transparent"
+                                            <TextBox.Style>
+                                                <Style TargetType="TextBox">
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="TextBox">
+                                                                <Border Background="Transparent"
                                                                         CornerRadius="6"
                                                                         BorderThickness="1"
                                                                         BorderBrush="#A1A3AB"
                                                                         Padding="{TemplateBinding Padding}">
-                                                                            <ScrollViewer x:Name="PART_ContentHost"/>
-                                                                        </Border>
-                                                                    </ControlTemplate>
-                                                                </Setter.Value>
-                                                            </Setter>
-                                                        </Style>
-                                                    </TextBox.Style>
-                                                </TextBox>
-                                            </StackPanel>
-                                        </StackPanel>
+                                                                    <ScrollViewer x:Name="PART_ContentHost"/>
+                                                                </Border>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </TextBox.Style>
+                                        </TextBox>
+                                    </StackPanel>
+                                </StackPanel>
 
-                                        <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
-                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
-                                                <TextBlock Text="Date:" 
+                                <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                        <TextBlock Text="Date:" 
                                                    FontSize="14" 
                                                    VerticalAlignment="Center" 
                                                    FontWeight="Regular" 
                                                    Margin="40, 0, 0, 0"/>
-                                                <TextBlock Name="DateTextBlock" 
+                                        <TextBlock Name="DateTextBlock" 
                                                    FontSize="14" 
                                                    VerticalAlignment="Center" 
                                                    Foreground="#41AB49" 
@@ -240,7 +250,7 @@
                                                    Padding="5"
                                                    Text="{Binding Task.Date, StringFormat='dd.MM.yyyy'}"
                                                    Visibility="{Binding IsReadOnly, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                                <DatePicker SelectedDate="{Binding Task.Date}"
+                                        <DatePicker SelectedDate="{Binding Task.Date}"
                                                     FontSize="14"
                                                     Foreground="#41AB49"
                                                     VerticalAlignment="Center"
@@ -248,43 +258,43 @@
                                                     Padding="5"
                                                     Width="120"
                                                     Visibility="{Binding IsReadOnly, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                                    <DatePicker.Style>
-                                                        <Style TargetType="DatePicker">
-                                                            <Setter Property="Template">
-                                                                <Setter.Value>
-                                                                    <ControlTemplate TargetType="DatePicker">
-                                                                        <Border Background="Transparent"
+                                            <DatePicker.Style>
+                                                <Style TargetType="DatePicker">
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="DatePicker">
+                                                                <Border Background="Transparent"
                                                                         CornerRadius="6"
                                                                         BorderThickness="1"
                                                                         BorderBrush="#A1A3AB"
                                                                         Padding="{TemplateBinding Padding}">
-                                                                            <Grid>
-                                                                                <DatePickerTextBox x:Name="PART_TextBox"/>
-                                                                                <Button x:Name="PART_Button"
+                                                                    <Grid>
+                                                                        <DatePickerTextBox x:Name="PART_TextBox"/>
+                                                                        <Button x:Name="PART_Button"
                                                                             Content="📅"
                                                                             Background="White"
                                                                             BorderThickness="0"
                                                                             HorizontalAlignment="Right"
                                                                             ClickMode="Press"/>
-                                                                            </Grid>
-                                                                        </Border>
-                                                                    </ControlTemplate>
-                                                                </Setter.Value>
-                                                            </Setter>
-                                                        </Style>
-                                                    </DatePicker.Style>
-                                                </DatePicker>
-                                            </StackPanel>
-                                        </StackPanel>
+                                                                    </Grid>
+                                                                </Border>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </DatePicker.Style>
+                                        </DatePicker>
+                                    </StackPanel>
+                                </StackPanel>
 
-                                        <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
-                                            <StackPanel Orientation="Horizontal" Width="235">
-                                                <TextBlock Text="Time:" 
+                                <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
+                                    <StackPanel Orientation="Horizontal" Width="235">
+                                        <TextBlock Text="Time:" 
                                                    VerticalAlignment="Center" 
                                                    FontSize="14" 
                                                    FontWeight="Regular" 
                                                    Margin="40, 0, 0, 0"/>
-                                                <TextBlock Name="timeTextbox" 
+                                        <TextBlock Name="timeTextbox" 
                                                    VerticalAlignment="Center" 
                                                    FontSize="14" 
                                                    Foreground="#41AB49"  
@@ -292,43 +302,44 @@
                                                    Padding="5"
                                                    Text="{Binding Task.Time, StringFormat='hh\\:mm'}"
                                                    Visibility="{Binding IsReadOnly, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                                <TextBox Text="{Binding Task.Time, StringFormat='hh\\:mm', UpdateSourceTrigger=PropertyChanged}"
+                                        <TextBox Text="{Binding Task.Time, StringFormat='hh\\:mm', UpdateSourceTrigger=PropertyChanged}"
                                                  FontSize="14"
                                                  Foreground="Black"
                                                  Height="40"
                                                  VerticalAlignment="Center"
                                                  Margin="5, 0, 0, 0"
                                                  Padding="5"
-                                                 Width="127"
+                                                 Width="80"
+                                                 HorizontalAlignment="Stretch"
                                                  Visibility="{Binding IsReadOnly, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                                    <TextBox.Style>
-                                                        <Style TargetType="TextBox">
-                                                            <Setter Property="Template">
-                                                                <Setter.Value>
-                                                                    <ControlTemplate TargetType="TextBox">
-                                                                        <Border Background="Transparent"
+                                            <TextBox.Style>
+                                                <Style TargetType="TextBox">
+                                                    <Setter Property="Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate TargetType="TextBox">
+                                                                <Border Background="Transparent"
                                                                         CornerRadius="6"
                                                                         BorderThickness="1"
                                                                         BorderBrush="#A1A3AB"
                                                                         Padding="{TemplateBinding Padding}">
-                                                                            <ScrollViewer x:Name="PART_ContentHost"/>
-                                                                        </Border>
-                                                                    </ControlTemplate>
-                                                                </Setter.Value>
-                                                            </Setter>
-                                                        </Style>
-                                                    </TextBox.Style>
-                                                </TextBox>
-                                            </StackPanel>
-                                        </StackPanel>
+                                                                    <ScrollViewer x:Name="PART_ContentHost"/>
+                                                                </Border>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </TextBox.Style>
+                                        </TextBox>
+                                    </StackPanel>
+                                </StackPanel>
 
-                                        <StackPanel Orientation="Horizontal" Margin="34, 10, 0, 0">
-                                            <TextBlock Text="Category:" 
+                                <StackPanel Orientation="Horizontal" Margin="34, 10, 0, 0">
+                                    <TextBlock Text="Category:" 
                                                VerticalAlignment="Center" 
                                                FontSize="14" 
                                                FontWeight="Regular" 
                                                Margin="5, 0, 10, 0"/>
-                                            <TextBlock Name="CategoryTextBlock" 
+                                    <TextBlock Name="CategoryTextBlock" 
                                                VerticalAlignment="Center" 
                                                FontSize="14" 
                                                Foreground="#41AB49" 
@@ -336,8 +347,8 @@
                                                Padding="5"
                                                Text="{Binding Task.Category}"
                                                Visibility="{Binding IsReadOnly, Converter={StaticResource BoolToVisibilityConverter}}"/>
-
-                                            <ComboBox Name="CategoryComboBox"
+                                    
+                                    <ComboBox Name="CategoryComboBox"
                                               Width="150"
                                               Height="35"
                                               Margin="0, 10, 330, 0"
@@ -346,23 +357,23 @@
                                               SelectedItem="{Binding Task.Category, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                               VerticalAlignment="Center"
                                               Visibility="{Binding IsReadOnly, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                            </ComboBox>
-                                        </StackPanel>
+                                    </ComboBox>
+                                </StackPanel>
 
-                                        <StackPanel Orientation="Horizontal" Margin="40, 10, 0, 0">
-                                            <StackPanel Orientation="Horizontal" Width="235">
-                                                <TextBlock Text="Status:" 
+                                <StackPanel Orientation="Horizontal" Margin="40, 10, 0, 0">
+                                    <StackPanel Orientation="Horizontal" Width="235">
+                                        <TextBlock Text="Status:" 
                                                    FontSize="14" 
                                                    VerticalAlignment="Center" 
                                                    FontWeight="Regular"/>
-                                                <TextBlock Text="{Binding Task.Status}"
+                                        <TextBlock Text="{Binding Task.Status}"
                                                    FontSize="14"
                                                    Foreground="#41AB49"
                                                    VerticalAlignment="Center"
                                                    Margin="5, 0, 0, 0"
                                                    Padding="5"
                                                    Visibility="{Binding IsReadOnly, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                                <ComboBox Name="StatusComboBox"
+                                        <ComboBox Name="StatusComboBox"
                                                   Width="150"
                                                   Height="35"
                                                   Margin="5, 10, 330, 0"
@@ -371,16 +382,16 @@
                                                   SelectedItem="{Binding Task.Status, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                   VerticalAlignment="Center"
                                                   Visibility="{Binding IsReadOnly, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                                </ComboBox>
-                                            </StackPanel>
-                                        </StackPanel>
+                                        </ComboBox>
+                                    </StackPanel>
+                                </StackPanel>
 
-                                        <TextBlock Text="Description" 
-                                           FontSize="15" 
+                                <TextBlock Text="Description" 
+                                           FontSize="24" 
                                            FontWeight="SemiBold" 
                                            Margin="40, 20, 0, 0"/>
-                                        <Border Width="398" 
-                                        Height="110" 
+                                <Border Width="490" 
+                                        Height="90" 
                                         Background="#F5F5F5" 
                                         Margin="35, 10, 330, 0" 
                                         Padding="5"
@@ -388,16 +399,42 @@
                                         BorderThickness="1"  
                                         BorderBrush="#A1A3AB"
                                         Visibility="{Binding IsReadOnly, Converter={StaticResource BoolToVisibilityConverter}}">
-                                            <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,0,56,-6">
-                                                <TextBlock Text="{Binding Task.Description}" 
-                                                   TextWrapping="Wrap" HorizontalAlignment="Left"/>
-                                            </ScrollViewer>
-                                        </Border>
-                                    </StackPanel>
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                        <TextBlock Text="{Binding Task.Description}" 
+                                                   TextWrapping="Wrap"/>
+                                    </ScrollViewer>
                                 </Border>
-                            </ScrollViewer>
+                                <TextBox Text="{Binding Task.Description, UpdateSourceTrigger=PropertyChanged}"
+                                         Width="490"
+                                         Height="90"
+                                         Background="White"
+                                         Margin="35, 10, 330, 0"
+                                         Padding="5"
+                                         TextWrapping="Wrap"
+                                         AcceptsReturn="True"
+                                         Visibility="{Binding IsReadOnly, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="TextBox">
+                                                        <Border Background="{TemplateBinding Background}"
+                                                                CornerRadius="6"
+                                                                BorderThickness="1"  
+                                                                BorderBrush="#A1A3AB"
+                                                                Padding="{TemplateBinding Padding}">
+                                                            <ScrollViewer x:Name="PART_ContentHost"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                                </StackPanel>
+                        </Border>
 
-
+                        
                             <Button x:Name="EditButton" Grid.Row="2" Content="Edit" Background="#408057" Foreground="White" 
                                 BorderThickness="0" Width="80" Height="35" HorizontalAlignment="Left" Margin="20,0,0,0"
                                 Command="{Binding EditCommand}" Visibility="{Binding EditButtonVisibility}">
@@ -439,11 +476,8 @@
                             </Button>
                         </Grid>
                     </Border>
-
-                </Grid>
-            </ScrollViewer>
+            </Grid>
         </Grid>
-
     </Grid>
-
+    
 </Window>

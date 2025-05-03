@@ -6,13 +6,13 @@ using System.Windows;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Linq;
+using System.Text;
 using System.Windows.Input;
 using System.Windows.Threading;
+using MySql.Data.MySqlClient;
 using PlannerApp.Models;
 using WPlannerApp.Services;
-
-
-
 
 namespace PlannerApp
 {
@@ -27,7 +27,6 @@ namespace PlannerApp
         public string RepeatSummary { get; set; } = "Do Not Repeat";
 
         private string _taskTitle;
-
 
         public string TaskTitle
         {
@@ -99,11 +98,11 @@ namespace PlannerApp
         public RecurrenceModel Recurrence { get; set; }
 
         private TaskService _taskService = new TaskService();
+        public ObservableCollection<TaskItem> AllTasks { get; set; }
 
         public AddTask()
         {
             InitializeComponent();
-
             Tasks = new ObservableCollection<TaskItem>();
             DataContext = this;
 
@@ -299,8 +298,71 @@ namespace PlannerApp
             addtaskWindow.Show();
             this.Close();
         }
+        private void ShowCalendar(object sender, RoutedEventArgs e)
+        {
+            Calendar calendarWindow = new Calendar();
+            calendarWindow.Show();
+            this.Close();
+        }
+        
+        private void SearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string searchText = SearchTextBox.Text;
 
+                using (var db = new DatabaseHelper())
+                {
+                    var conn = db.GetConnection();
+                    conn.Open();
+                    
+                    string query = @"SELECT * FROM task
+                                   WHERE title LIKE @searchText 
+                                      OR description LIKE @searchText";
+                    
+                    var results = new List<TaskItem>();
+                    using (var cmd = new MySqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@searchText", $"%{searchText}%");
+                        
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (!reader.HasRows)
+                            {
+                                MessageBox.Show("Ничего не найдено");
+                                return;
+                            }
 
+                            while (reader.Read())
+                            {
+                                results.Add(new TaskItem
+                                {
+                                    Id = reader.GetInt32("id"),
+                                    Title = reader.GetString("title"),
+                                    Status = reader.GetString("status"),
+                                    Date = reader.GetDateTime("date"),
+                                    Category = reader.GetString("category")
+                                });
+                            }
+                        }
+                    }
+
+                    if (results == null || !results.Any())
+                    {
+                        MessageBox.Show("Нет результатов");
+                        return;
+                    }
+
+                    var searchWindow = new Search(results);
+                    searchWindow.Show();
+                    this.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка поиска: {ex.Message}");
+            }
+        }
         private void Logout(object sender, RoutedEventArgs e)
         {
             LoginWindow categoryWindow = new LoginWindow();
@@ -334,3 +396,4 @@ namespace PlannerApp
 
     
 }
+

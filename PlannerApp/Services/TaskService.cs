@@ -9,7 +9,7 @@ namespace WPlannerApp.Services
 {
     public class TaskService
     {
-        private readonly string connectionString = "Server=localhost;Database=planer;User ID=root;Password=tasa2004;";
+        private readonly string connectionString = "Server=localhost;Database=planer;User ID=root;Password=1234;";
 
         public void AddTask(TaskItem task, RecurrenceModel recurrence = null)
         {

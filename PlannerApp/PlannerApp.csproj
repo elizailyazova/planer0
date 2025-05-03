@@ -14,6 +14,8 @@
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <LangVersion>13</LangVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -115,6 +117,9 @@
     <Compile Include="AddTask.xaml.Designer.cs">
       <DependentUpon>AddTask.xaml.cs</DependentUpon>
     </Compile>
+    <Compile Include="Calendar.xaml.cs">
+      <DependentUpon>Calendar.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Category.xaml.cs">
       <DependentUpon>Category.xaml</DependentUpon>
       <SubType>Form</SubType>
@@ -130,6 +135,9 @@
     <Compile Include="RelayCommand.cs" />
     <Compile Include="RepeatSettings.xaml.cs">
       <DependentUpon>RepeatSettings.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Search.xaml.cs">
+      <DependentUpon>Search.xaml</DependentUpon>
     </Compile>
     <Compile Include="Services\TaskService.cs" />
     <Compile Include="Tasks.xaml.cs">
@@ -158,6 +166,7 @@
     <Page Include="AddTask.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Calendar.xaml" />
     <Page Include="Category.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Form</SubType>
@@ -168,6 +177,7 @@
     <Page Include="RepeatSettings.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Search.xaml" />
     <Page Include="Tasks.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
